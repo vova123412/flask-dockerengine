@@ -1,13 +1,27 @@
 from flask import Flask,jsonify
-
+import socket
+from flask import request
 import docker
-import json
 app = Flask(__name__)
 cli = docker.from_env()
 @app.route('/')
 def hello():
- 
     return cli.version()
+
+
+@app.route('/req')
+def req():
+    req_ip = request.environ.get('HTTP_X_REAL_IP', request.remote_addr)
+    user_request = {
+        "reqlip": req_ip,
+        "method": request.method,
+        "url": request.url,
+        "host":"request.host",
+        # "headers": dict(request.headers),
+        "client_ip": request.remote_addr,
+    }
+    return str(user_request)
+
 
 @app.route('/containers', methods=['GET'])
 def get_containers():
@@ -33,4 +47,4 @@ def Runningcontainers():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+     app.run(debug=True, host='0.0.0.0', port=5000)
